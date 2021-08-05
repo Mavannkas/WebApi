@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApi.Mappers;
+using WebApi.Repositories;
 
 namespace WebApi
 {
@@ -26,6 +28,8 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IItemsRepository, InMemItemsRespository>();
+            services.AddSingleton<DtoMapper>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>

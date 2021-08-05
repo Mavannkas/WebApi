@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApi.Dtos;
 using WebApi.Entities;
+using WebApi.Mappers;
 using WebApi.Repositories;
 
 namespace WebApi.Controllers
@@ -14,24 +16,27 @@ namespace WebApi.Controllers
     [Route("items")]
     public class ItemsController : ControllerBase
     {
-        private readonly InMemItemsRespository _respository;
+        private readonly IItemsRepository _respository;
+        private readonly DtoMapper _mapper;
 
-        public ItemsController()
+        public ItemsController(IItemsRepository respository, DtoMapper mapper)
         {
-            _respository = new InMemItemsRespository();
+
+            _mapper = mapper;
+            _respository = respository;
         }
 
         // GET /items
         [HttpGet]
-        public IEnumerable<Item> GetItems()
+        public IEnumerable<ItemDto> GetItems()
         {
             var items = _respository.GetItems();
-            return items;
+            return _mapper.Map(items);
         }
 
-        // GET /items/id
+        // GET /items/{id}
         [HttpGet("{id}")]
-        public ActionResult<Item> GetItem(Guid id)
+        public ActionResult<ItemDto> GetItem(Guid id)
         {
             var item = _respository.GetItem(id);
 
@@ -40,7 +45,7 @@ namespace WebApi.Controllers
                 return NotFound();
             }
 
-            return item;
+            return _mapper.Map(item);
         }
     }
 }

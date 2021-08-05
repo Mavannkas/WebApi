@@ -6,7 +6,7 @@ using WebApi.Entities;
 
 namespace WebApi.Repositories
 {
-    public class InMemItemsRespository
+    public class InMemItemsRespository : IItemsRepository
     {
         private readonly List<Item> _items = new()
         {
