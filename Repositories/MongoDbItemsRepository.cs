@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace WebApi.Repositories
         private const string databaseName = "WebApi";
         private const string collectionName = "items";
         private readonly IMongoCollection<Item> _itemsCollection;
+        private readonly FilterDefinitionBuilder<Item> _fukterBuilder = Builders<Item>.Filter;
 
         public MongoDbItemsRepository(IMongoClient mongoClient)
         {
@@ -26,22 +28,25 @@ namespace WebApi.Repositories
 
         public void DeleteItem(Guid id)
         {
-            _itemsCollection.DeleteOne(item => item.Id == id);
+            var filter = _fukterBuilder.Eq(item => item.Id, id);
+            _itemsCollection.DeleteOne(filter);
         }
 
         public Item GetItem(Guid id)
         {
-            throw new NotImplementedException();
+            var filter = _fukterBuilder.Eq(item => item.Id, id);
+            return _itemsCollection.Find(filter).SingleOrDefault();
         }
 
         public IEnumerable<Item> GetItems()
         {
-            throw new NotImplementedException();
+            return _itemsCollection.Find(new BsonDocument()).ToEnumerable();
         }
 
         public void UpdateItem(Item item)
         {
-            throw new NotImplementedException();
+            var filter = _fukterBuilder.Eq(existingItem => existingItem.Id, item.Id);
+            _itemsCollection.ReplaceOne(filter, item);
         }
     }
 }
