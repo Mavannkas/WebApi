@@ -19,7 +19,7 @@ namespace WebApi.Controllers
         private readonly IItemsRepository _respository;
         private readonly DtoMapper _mapper;
 
-        public ItemsController(IItemsRepository respository, DtoMapper mapper)
+        public ItemsController (IItemsRepository respository, DtoMapper mapper)
         {
 
             _mapper = mapper;
@@ -28,17 +28,17 @@ namespace WebApi.Controllers
 
         // GET /items
         [HttpGet]
-        public IEnumerable<ItemDto> GetItems()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
         {
-            var items = _respository.GetItems();
+            var items = await _respository.GetItemsAsync();
             return _mapper.Map(items);
         }
 
         // GET /items/{id}
         [HttpGet("{id}")]
-        public ActionResult<ItemDto> GetItem(Guid id)
+        public async Task<ActionResult<ItemDto>> GetItemAsync(Guid id)
         {
-            var item = _respository.GetItem(id);
+            var item = await _respository.GetItemAsync(id);
 
             if (item is null)
             {
@@ -50,7 +50,7 @@ namespace WebApi.Controllers
 
         // POST /items
         [HttpPost]
-        public ActionResult<ItemDto> CreateItem(CreateItemDto createItemDto)
+        public async Task<ActionResult<ItemDto>> CreateItemAsync(CreateItemDto createItemDto)
         {
             Item item = new()
             {
@@ -60,16 +60,16 @@ namespace WebApi.Controllers
                 Price = createItemDto.Price
             };
 
-            _respository.CreateItem(item);
+            await _respository.CreateItemAsync(item);
 
-            return CreatedAtAction(nameof(GetItem), new { item.Id }, _mapper.Map(item));
+            return CreatedAtAction(nameof(GetItemAsync), new { item.Id }, _mapper.Map(item));
         }
 
         // PUT /items/{id}
         [HttpPut("{id}")]
-        public ActionResult UpdateItem(Guid id, UpdateItemDto updateItemDto)
+        public async Task<ActionResult> UpdateItemAsync(Guid id, UpdateItemDto updateItemDto)
         {
-            var existingItem = _respository.GetItem(id);
+            var existingItem = await _respository.GetItemAsync(id);
 
             if (existingItem is null)
             {
@@ -82,23 +82,23 @@ namespace WebApi.Controllers
                 Price = updateItemDto.Price,
             };
 
-            _respository.UpdateItem(updatedItem);
+            await _respository.UpdateItemAsync(updatedItem);
 
             return NoContent();
         }
 
         // DELETE /items/{id}
         [HttpDelete("{id}")]
-        public ActionResult DeleteItem(Guid id)
+        public async Task<ActionResult> DeleteItemAsync(Guid id)
         {
-            var existingItem = _respository.GetItem(id);
+            var existingItem =await _respository.GetItemAsync(id);
 
             if (existingItem is null)
             {
                 return NotFound();
             }
 
-            _respository.DeleteItem(id);
+            await _respository.DeleteItemAsync(id);
 
             return NoContent();
         }
