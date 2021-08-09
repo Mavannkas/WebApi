@@ -7,7 +7,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using WebApi.Controllers;
-using WebApi.Dtos;
 using WebApi.Entities;
 using WebApi.Mappers;
 using WebApi.Repositories;
@@ -97,11 +96,8 @@ namespace WebApi.UnitTests
         public async Task CreateItemAsync_WithItemToCreate_ReturnsCreatedItem()
         {
             // Arrange
-            var itemToCreate = new CreateItemDto()
-            {
-                Name = Guid.NewGuid().ToString(),
-                Price = random.Next(1, 1000) 
-            };
+            var itemToCreate = new CreateItemDto(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), random.Next(1, 1000));
+
 
             var controller = new ItemsController(repositoryStub.Object, mapperStub.Object);
 
@@ -123,11 +119,7 @@ namespace WebApi.UnitTests
         public async Task UpdateItemAsync_WithNonExistingItemToUpdate_ReturnsNotFound()
         {
             // Arrange
-            var itemToUpdate = new UpdateItemDto()
-            {
-                Name = Guid.NewGuid().ToString(),
-                Price = random.Next(1, 1000) 
-            };
+            var itemToUpdate = new UpdateItemDto(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), random.Next(1, 1000));
 
             repositoryStub.Setup(repo => repo.GetItemAsync(It.IsAny<Guid>()))
                           .ReturnsAsync((Item)null);
@@ -148,11 +140,8 @@ namespace WebApi.UnitTests
             var exstingItem = CreateItem();
 
             var itemToUpdateId = exstingItem.Id;
-            var itemToUpdate = new UpdateItemDto()
-            {
-                Name = Guid.NewGuid().ToString(),
-                Price = random.Next(1, 1000) 
-            };
+            var itemToUpdate = new UpdateItemDto(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), random.Next(1, 1000));
+
 
             repositoryStub.Setup(repo => repo.GetItemAsync(It.IsAny<Guid>()))
                           .ReturnsAsync(exstingItem);

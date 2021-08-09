@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebApi.Dtos;
 using WebApi.Entities;
 using WebApi.Mappers;
 using WebApi.Repositories;
@@ -56,6 +55,7 @@ namespace WebApi.Controllers
             {
                 Id = Guid.NewGuid(),
                 Name = createItemDto.Name,
+                Description = createItemDto.Description,
                 CreateDate = DateTimeOffset.UtcNow,
                 Price = createItemDto.Price
             };
@@ -76,13 +76,10 @@ namespace WebApi.Controllers
                 return NotFound();
             }
 
-            Item updatedItem = existingItem with
-            {
-                Name = updateItemDto.Name,
-                Price = updateItemDto.Price,
-            };
+            existingItem.Name = updateItemDto.Name;
+            existingItem.Price = updateItemDto.Price;
 
-            await _respository.UpdateItemAsync(updatedItem);
+            await _respository.UpdateItemAsync(existingItem);
 
             return NoContent();
         }
