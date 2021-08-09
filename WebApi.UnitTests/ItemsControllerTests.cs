@@ -50,8 +50,9 @@ namespace WebApi.UnitTests
             var result = await controller.GetItemAsync(Guid.NewGuid());
 
             // Assert
-            result.Value.Should()
-                .BeEquivalentTo(expectItem, options => options.ComparingByMembers<Item>());
+            result.Value.Should().BeEquivalentTo(
+                expectItem
+                );
         }
 
         private Item CreateItem()
@@ -87,8 +88,35 @@ namespace WebApi.UnitTests
 
             // Assert
             result.Should().BeEquivalentTo(
-                exprectedItems,
-                options => options.ComparingByMembers<Item>()
+                exprectedItems
+                );
+        }
+
+        [Fact]
+        public async Task GetItemsAsync_WithMatchingItems_ReturnsMatchingItems()
+        {
+            // Arrange
+            var allItems = new[]
+            {
+                new Item(){ Name = "Potion" },
+                new Item(){ Name = "Antidote" },
+                new Item(){ Name = "Hi-Potion" },
+                new Item(){ Name = "Mg-Potion" },
+            };
+
+            var nameToMatch = "Potion";
+
+            repositoryStub.Setup(repo => repo.GetItemsAsync())
+                .ReturnsAsync(allItems);
+
+            var controller = new ItemsController(repositoryStub.Object, mapperStub.Object);
+
+            // Act
+            IEnumerable<ItemDto> foundItems = await controller.GetItemsAsync(nameToMatch);
+
+            // Assert
+            foundItems.Should().OnlyContain(
+                item => item.Name == allItems[0].Name || item.Name == allItems[2].Name || item.Name == allItems[3].Name
                 );
         }        
         

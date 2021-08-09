@@ -27,11 +27,18 @@ namespace WebApi.Controllers
 
         // GET /items
         [HttpGet]
-        public async Task<IEnumerable<ItemDto>> GetItemsAsync()
+        public async Task<IEnumerable<ItemDto>> GetItemsAsync(string nameToMatch = null)
         {
             var items = await _respository.GetItemsAsync();
+
+            if (!string.IsNullOrWhiteSpace(nameToMatch))
+            {
+                items = items.Where(item => item.Name.Contains(nameToMatch, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
             return _mapper.Map(items);
         }
+
 
         // GET /items/{id}
         [HttpGet("{id}")]
@@ -99,5 +106,7 @@ namespace WebApi.Controllers
 
             return NoContent();
         }
+
+
     }
 }

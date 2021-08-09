@@ -16,7 +16,8 @@ namespace WebApi.Mappers
         {
             _mapper = new MapperConfiguration(config => 
             {
-                config.CreateMap<Item, ItemDto>().ReverseMap();
+                config.CreateMap<Item, ItemDto>()
+                .ReverseMap();
             }).CreateMapper();
 
         }
