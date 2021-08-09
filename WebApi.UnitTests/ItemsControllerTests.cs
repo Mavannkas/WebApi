@@ -20,6 +20,7 @@ namespace WebApi.UnitTests
         private readonly Mock<IItemsRepository> repositoryStub = new();
         private readonly Mock<DtoMapper> mapperStub = new();
         private readonly Random random = new();
+
         [Fact]
         public async Task GetItemAsync_WithUnexistingItem_ReturnsNotFound()
         {
@@ -116,6 +117,91 @@ namespace WebApi.UnitTests
             );
             createdItem.Id.Should().NotBeEmpty();
             createdItem.CreateDate.Should().BeCloseTo(DateTimeOffset.UtcNow, 1000);
+        }        
+        
+        [Fact]
+        public async Task UpdateItemAsync_WithNonExistingItemToUpdate_ReturnsNotFound()
+        {
+            // Arrange
+            var itemToUpdate = new UpdateItemDto()
+            {
+                Name = Guid.NewGuid().ToString(),
+                Price = random.Next(1, 1000) 
+            };
+
+            repositoryStub.Setup(repo => repo.GetItemAsync(It.IsAny<Guid>()))
+                          .ReturnsAsync((Item)null);
+
+            var controller = new ItemsController(repositoryStub.Object, mapperStub.Object);
+
+            // Act
+            var result = await controller.UpdateItemAsync(Guid.NewGuid(), itemToUpdate);
+
+            // Assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+        
+        [Fact]
+        public async Task UpdateItemAsync_WithExistingItemToUpdate_ReturnsNoContent()
+        {
+            // Arrange
+            var exstingItem = CreateItem();
+
+            var itemToUpdateId = exstingItem.Id;
+            var itemToUpdate = new UpdateItemDto()
+            {
+                Name = Guid.NewGuid().ToString(),
+                Price = random.Next(1, 1000) 
+            };
+
+            repositoryStub.Setup(repo => repo.GetItemAsync(It.IsAny<Guid>()))
+                          .ReturnsAsync(exstingItem);
+
+            var controller = new ItemsController(repositoryStub.Object, mapperStub.Object);
+
+            // Act
+            var result = await controller.UpdateItemAsync(itemToUpdateId, itemToUpdate);
+
+            // Assert
+            result.Should().BeOfType<NoContentResult>();
+        }
+
+        [Fact]
+        public async Task DeleteItemAsync_WithNonExistingItemToDelete_ReturnsNotFound()
+        {
+            // Arrange
+
+            repositoryStub.Setup(repo => repo.GetItemAsync(It.IsAny<Guid>()))
+                          .ReturnsAsync((Item)null);
+
+            var controller = new ItemsController(repositoryStub.Object, mapperStub.Object);
+
+            // Act
+            var result = await controller.DeleteItemAsync(Guid.NewGuid());
+
+            // Assert
+            result.Should().BeOfType<NotFoundResult>();
+        }
+        
+        [Fact]
+        public async Task DeleteItemAsync_WithExistingItemToDelete_ReturnsNoContent()
+        {
+            // Arrange
+            var exstingItem = CreateItem();
+
+            var itemToDeleteId = exstingItem.Id;
+
+
+            repositoryStub.Setup(repo => repo.GetItemAsync(It.IsAny<Guid>()))
+                          .ReturnsAsync(exstingItem);
+
+            var controller = new ItemsController(repositoryStub.Object, mapperStub.Object);
+
+            // Act
+            var result = await controller.DeleteItemAsync(itemToDeleteId);
+
+            // Assert
+            result.Should().BeOfType<NoContentResult>();
         }
     }
 }
